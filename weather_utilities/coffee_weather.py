@@ -7,6 +7,8 @@ from retry_requests import retry
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 
+from weather_utilities import rescue_object
+
 # the RateLimiter is very finicky
 def find_region_latlong(region_list):
 	geolocator = Nominatim(user_agent='myapplication')
@@ -14,8 +16,8 @@ def find_region_latlong(region_list):
 	try:
 		geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
 		geocodes = [{region : geocode(region)} for region in region_list]
-	except Exception as e:
-		pass
+	except:
+		return rescue_object.geo_data()
 	return geocodes
 
 def pull_weather_data(latitude, longitude):
