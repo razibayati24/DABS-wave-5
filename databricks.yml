@@ -1,3 +1,5 @@
+# Razi note: used this as reference https://e2-demo-field-eng.cloud.databricks.com/?o=1444828305810485#files/3946993547966769 
+
 # This is a Databricks asset bundle definition for coffee_weather.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
 bundle:
@@ -5,6 +7,15 @@ bundle:
 
 include:
   - resources/*.yml
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  warehouse_id:
+    description: The warehouse to use
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
 
 targets:
   # The 'dev' target, for development purposes. This target is the default.
@@ -17,6 +28,12 @@ targets:
     default: true
     workspace:
       host: https://e2-demo-field-eng.cloud.databricks.com
+    variables:
+      warehouse_id: 
+        lookup:
+          warehouse: Serverless Shared Endpoint
+      catalog: dnb_wave_5
+      schema: sandbox   
 
   ## Optionally, there could be a 'staging' target here.
   ## (See Databricks docs on CI/CD at https://docs.databricks.com/dev-tools/bundles/ci-cd.html.)
@@ -33,3 +50,19 @@ targets:
     workspace:
       host: https://e2-demo-field-eng.cloud.databricks.com
       # We always use /Users/kimberly.mahoney@databricks.com for all resources to make sure we only have a single copy.
+    variables:
+      warehouse_id: 
+        lookup:
+          warehouse: dbdemos-shared-endpoint
+      catalog: dnb_wave_5
+      schema: prod
+
+    run_as:
+      service_principal_name: c6895172-0f52-400a-99dc-390e867f5f8b
+      # service_principal_name: eb-dnb-wave-5-sp
+      # Level: CAN_RUN
+
+    resources:
+      jobs:
+        Coffee_Weather:
+          name: "[prod ${workspace.current_user.userName}] Coffee Weather"
